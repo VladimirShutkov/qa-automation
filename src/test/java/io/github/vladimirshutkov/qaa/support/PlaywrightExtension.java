@@ -10,24 +10,52 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** JUnit 5 lifecycle adapter that creates an isolated browser context for every test. */
 public final class PlaywrightExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
+    private static final Logger TEST_LOGGER = LoggerFactory.getLogger("TEST");
+    private static final Logger SETUP_LOGGER = LoggerFactory.getLogger("SETUP");
     private static final ExtensionContext.Namespace NAMESPACE =
             ExtensionContext.Namespace.create(PlaywrightExtension.class);
     private static final String SESSION_KEY = "uiSession";
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        context.getStore(NAMESPACE).put(SESSION_KEY, UiSession.open(UiConfiguration.load()));
+        TEST_LOGGER.info("Starting: {}", testName(context));
+        SETUP_LOGGER.info("Opening isolated Playwright session");
+        try {
+            context.getStore(NAMESPACE).put(SESSION_KEY, UiSession.open(UiConfiguration.load()));
+        } catch (RuntimeException exception) {
+            TEST_LOGGER.error("FAILED: {}", testName(context), exception);
+            throw exception;
+        }
     }
 
     @Override
     public void afterEach(ExtensionContext context) {
         UiSession session = context.getStore(NAMESPACE).remove(SESSION_KEY, UiSession.class);
-        if (session != null) {
-            session.close();
+        try {
+            if (session != null) {
+                SETUP_LOGGER.info("Closing isolated Playwright session");
+                session.close();
+            }
+        } catch (RuntimeException exception) {
+            TEST_LOGGER.error("FAILED: {}", testName(context), exception);
+            throw exception;
         }
+
+        context.getExecutionException().ifPresentOrElse(
+                exception -> TEST_LOGGER.error("FAILED: {}", testName(context), exception),
+                () -> TEST_LOGGER.info("PASSED: {}", testName(context))
+        );
+    }
+
+    private static String testName(ExtensionContext context) {
+        return context.getRequiredTestClass().getSimpleName()
+                + "."
+                + context.getRequiredTestMethod().getName();
     }
 
     @Override
