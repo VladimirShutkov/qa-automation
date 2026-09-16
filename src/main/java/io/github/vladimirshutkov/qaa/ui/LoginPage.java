@@ -30,6 +30,11 @@ public final class LoginPage {
         loginButton.click();
     }
 
+    public boolean isOpened() {
+        LOGGER.info("Checking Login page visibility");
+        return usernameInput.isVisible() && loginButton.isVisible();
+    }
+
     public boolean isLoginErrorVisible() {
         return loginError.isVisible();
     }

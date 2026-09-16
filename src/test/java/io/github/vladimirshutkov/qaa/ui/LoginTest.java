@@ -39,6 +39,25 @@ class LoginTest {
     }
 
     @Test
+    @DisplayName("User can log out")
+    void shouldReturnToLoginPageWhenUserLogsOut(Page page) {
+        page.navigate("/");
+        LoginPage loginPage = new LoginPage(page);
+        loginPage.login(STANDARD_USER, PASSWORD);
+
+        ProductsPage productsPage = new ProductsPage(page);
+        productsPage.waitUntilOpened();
+        ASSERT_LOGGER.info("Verifying Products page is visible");
+        assertTrue(productsPage.isOpened(), "Products page should be opened after a successful login.");
+
+        productsPage.openApplicationMenu();
+        productsPage.logout();
+
+        ASSERT_LOGGER.info("Verifying Login page is visible after logout");
+        assertTrue(loginPage.isOpened(), "Login page should be opened after logout.");
+    }
+
+    @Test
     @DisplayName("Invalid credentials show login error")
     void shouldShowLoginErrorForInvalidCredentials(Page page) {
         page.navigate("/");
