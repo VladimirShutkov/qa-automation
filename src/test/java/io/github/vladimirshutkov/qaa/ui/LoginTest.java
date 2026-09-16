@@ -17,6 +17,8 @@ class LoginTest {
     private static final String STANDARD_USER = "standard_user";
     private static final String PASSWORD = "secret_sauce";
     private static final String PRODUCTS_TITLE = "Products";
+    private static final String INVALID_USERNAME = "invalid_user";
+    private static final String INVALID_PASSWORD = "invalid_password";
 
     @Test
     @DisplayName("User can log in with valid credentials")
@@ -32,5 +34,17 @@ class LoginTest {
         assertTrue(productsPage.isOpened(), "Products page should be opened after a successful login.");
         ASSERT_LOGGER.info("Verifying Products page title is '{}'", PRODUCTS_TITLE);
         assertEquals(PRODUCTS_TITLE, productsPage.title(), "Products page should have the expected title.");
+    }
+
+    @Test
+    @DisplayName("Invalid credentials show login error")
+    void shouldShowLoginErrorForInvalidCredentials(Page page) {
+        page.navigate("/");
+        LoginPage loginPage = new LoginPage(page);
+
+        loginPage.login(INVALID_USERNAME, INVALID_PASSWORD);
+
+        ASSERT_LOGGER.info("Verifying login error message is visible");
+        assertTrue(loginPage.isLoginErrorVisible(), "Login error message should be visible for invalid credentials.");
     }
 }
