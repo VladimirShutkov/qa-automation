@@ -14,10 +14,20 @@ Before composing a PR, check all of the following:
 - `git branch --show-current` returns a non-empty branch name other than `main`.
 - `git status --porcelain` is empty.
 - The current branch is pushed to `origin` and `origin/<current-branch>` resolves. Confirm the remote branch contains `HEAD` (for example, compare `HEAD` with `origin/<current-branch>`).
-- `gh --version` succeeds.
-- `gh auth status` succeeds.
+- `where.exe gh` finds GitHub CLI and `gh --version` succeeds. Run these local checks inside the Codex sandbox.
+- `gh auth status` confirms an active, valid GitHub CLI authentication. Run this check in the sandbox first; do not display its token or other credentials.
 
-Stop at the first unmet prerequisite. If `gh` is unavailable, tell the user to run exactly `winget install --id GitHub.cli`. If authentication is unavailable, tell the user to run exactly `gh auth login`. Do not attempt a browser login on the user's behalf. For other failed prerequisites, state the failed condition and the corrective action; do not create the PR.
+Run local Git commands (`git status`, `git branch`, `git diff`, and `git log`) and the CLI discovery/version checks (`where.exe gh`, `gh --version`) inside the sandbox.
+
+Treat failures distinctly and stop at the first unmet prerequisite:
+
+- **GitHub CLI absent:** if `where.exe gh` cannot find `gh`, tell the user to run exactly `winget install --id GitHub.cli`.
+- **Invalid or missing authentication:** only when `gh auth status` explicitly reports no active login, an invalid token, expired/revoked credentials, or another authentication-specific failure, tell the user to run exactly `gh auth login`. Do not attempt a browser login on the user's behalf.
+- **Sandbox/proxy network block:** errors such as `proxyconnect`, connection refusal to a local proxy (for example `127.0.0.1:9`), DNS/connectivity failures, or other network-access errors do **not** mean the token is invalid. Request permission to rerun the necessary network command outside the restricted sandbox, with `sandbox_permissions: "require_escalated"` and a concise user-facing justification. Do not ask the user to reauthenticate based on such an error.
+
+Use `gh api user --jq ".login"` as the network-backed GitHub CLI verification when needed. If it fails with a sandbox/proxy network block, rerun that same command with the required elevated sandbox permission. If the elevated command reports an authentication-specific failure, handle it as invalid authentication; otherwise report the actual network failure and do not create the PR.
+
+For other failed prerequisites, state the failed condition and the corrective action; do not create the PR.
 
 ## Analyse the branch
 
@@ -69,6 +79,8 @@ Write the description to a unique temporary file. In PowerShell, use a temp-file
 ```powershell
 gh pr create --base main --head <current-branch> --title "<generated-title>" --body-file <temporary-description-file>
 ```
+
+`gh pr create` is a network operation. If it is blocked by the sandbox or proxy, request permission to rerun it outside the restricted sandbox with `sandbox_permissions: "require_escalated"` and a concise justification that asks to create this PR through GitHub. Preserve `--body-file` and do not expose the temporary file contents beyond the PR request. If the elevated command reports a genuine authentication error, report it as such; if it reports a network error, report that network error without calling the token invalid.
 
 Capture the URL printed by `gh pr create`. Remove the temporary description file in a `finally` block, including when PR creation fails. Do not retry a failed creation unless the user explicitly asks.
 
