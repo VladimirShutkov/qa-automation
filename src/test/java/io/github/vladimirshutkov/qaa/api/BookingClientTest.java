@@ -3,6 +3,7 @@ package io.github.vladimirshutkov.qaa.api;
 import io.github.vladimirshutkov.qaa.config.ApiConfiguration;
 import io.github.vladimirshutkov.qaa.models.Booking;
 import io.restassured.response.Response;
+import jdk.jfr.Description;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
