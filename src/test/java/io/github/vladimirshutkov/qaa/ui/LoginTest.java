@@ -19,6 +19,8 @@ class LoginTest {
     private static final String PRODUCTS_TITLE = "Products";
     private static final String INVALID_USERNAME = "invalid_user";
     private static final String INVALID_PASSWORD = "invalid_password";
+    private static final String LOCKED_OUT_USER = "locked_out_user";
+    private static final String LOCKED_OUT_USER_MESSAGE = "Epic sadface: Sorry, this user has been locked out.";
 
     @Test
     @DisplayName("User can log in with valid credentials")
@@ -46,5 +48,18 @@ class LoginTest {
 
         ASSERT_LOGGER.info("Verifying login error message is visible");
         assertTrue(loginPage.isLoginErrorVisible(), "Login error message should be visible for invalid credentials.");
+    }
+
+    @Test
+    @DisplayName("Locked out user sees login error")
+    void shouldShowLockedOutUserError(Page page) {
+        page.navigate("/");
+        LoginPage loginPage = new LoginPage(page);
+
+        loginPage.login(LOCKED_OUT_USER, PASSWORD);
+
+        ASSERT_LOGGER.info("Verifying locked out user error message");
+        assertEquals(LOCKED_OUT_USER_MESSAGE, loginPage.loginErrorMessage(),
+                "Locked out user should see the expected login error message.");
     }
 }

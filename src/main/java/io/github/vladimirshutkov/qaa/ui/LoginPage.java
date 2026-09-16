@@ -33,4 +33,8 @@ public final class LoginPage {
     public boolean isLoginErrorVisible() {
         return loginError.isVisible();
     }
+
+    public String loginErrorMessage() {
+        return loginError.textContent();
+    }
 }
