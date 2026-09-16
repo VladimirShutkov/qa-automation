@@ -35,6 +35,7 @@
 
 ## Git
 
+- Для запросов `create PR`, `создай PR` или `/pr` использовать Skill `.codex/skills/create-pr/SKILL.md`.
 - Сохранять unrelated изменения пользователя.
 - Commit выполнять только по явному запросу.
 - Push, force-push, rewrite history, изменение remote и удаление файлов — только по явному разрешению.
