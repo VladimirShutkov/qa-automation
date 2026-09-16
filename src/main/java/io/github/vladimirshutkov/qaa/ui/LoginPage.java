@@ -11,11 +11,13 @@ public final class LoginPage {
     private final Locator usernameInput;
     private final Locator passwordInput;
     private final Locator loginButton;
+    private final Locator loginError;
 
     public LoginPage(Page page) {
         usernameInput = page.locator("[data-test='username']");
         passwordInput = page.locator("[data-test='password']");
         loginButton = page.locator("[data-test='login-button']");
+        loginError = page.locator("[data-test='error']");
     }
 
     public void login(String username, String password) {
@@ -26,5 +28,9 @@ public final class LoginPage {
         passwordInput.fill(password);
         LOGGER.info("Clicking Login button");
         loginButton.click();
+    }
+
+    public boolean isLoginErrorVisible() {
+        return loginError.isVisible();
     }
 }
