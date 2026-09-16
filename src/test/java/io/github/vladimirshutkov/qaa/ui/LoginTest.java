@@ -2,6 +2,7 @@ package io.github.vladimirshutkov.qaa.ui;
 
 import com.microsoft.playwright.Page;
 import io.github.vladimirshutkov.qaa.support.PlaywrightExtension;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ class LoginTest {
     private static final String PRODUCTS_TITLE = "Products";
 
     @Test
+    @DisplayName("User can log in with valid credentials")
     void shouldOpenProductsPageWhenStandardUserLogsIn(Page page) {
         page.navigate("/");
         LoginPage loginPage = new LoginPage(page);
