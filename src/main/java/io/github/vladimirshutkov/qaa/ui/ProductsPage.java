@@ -11,11 +11,15 @@ public final class ProductsPage {
     private final Locator pageTitle;
     private final Locator menuButton;
     private final Locator logoutLink;
+    private final Locator sauceLabsBackpackAddToCartButton;
+    private final Locator cartBadge;
 
     public ProductsPage(Page page) {
         pageTitle = page.locator("[data-test='title']");
         menuButton = page.locator("#react-burger-menu-btn");
         logoutLink = page.locator("#logout_sidebar_link");
+        sauceLabsBackpackAddToCartButton = page.locator("[data-test='add-to-cart-sauce-labs-backpack']");
+        cartBadge = page.locator("[data-test='shopping-cart-badge']");
     }
 
     public boolean isOpened() {
@@ -41,5 +45,15 @@ public final class ProductsPage {
     public void logout() {
         LOGGER.info("Logging out");
         logoutLink.click();
+    }
+
+    public void addSauceLabsBackpackToCart() {
+        LOGGER.info("Adding Sauce Labs Backpack to cart");
+        sauceLabsBackpackAddToCartButton.click();
+    }
+
+    public String cartBadgeCount() {
+        LOGGER.info("Getting cart badge count");
+        return cartBadge.textContent();
     }
 }
