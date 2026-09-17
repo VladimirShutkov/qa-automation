@@ -4,6 +4,7 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Page;
 import io.github.vladimirshutkov.qaa.config.UiConfiguration;
 import io.github.vladimirshutkov.qaa.ui.UiSession;
+import io.qameta.allure.Allure;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayInputStream;
 
 /** JUnit 5 lifecycle adapter that creates an isolated browser context for every test. */
 public final class PlaywrightExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
@@ -36,6 +39,9 @@ public final class PlaywrightExtension implements BeforeEachCallback, AfterEachC
     @Override
     public void afterEach(ExtensionContext context) {
         UiSession session = context.getStore(NAMESPACE).remove(SESSION_KEY, UiSession.class);
+        if (context.getExecutionException().isPresent() && session != null) {
+            attachFailureScreenshot(session, context);
+        }
         try {
             if (session != null) {
                 SETUP_LOGGER.info("Closing isolated Playwright session");
@@ -50,6 +56,15 @@ public final class PlaywrightExtension implements BeforeEachCallback, AfterEachC
                 exception -> TEST_LOGGER.error("FAILED: {}", testName(context), exception),
                 () -> TEST_LOGGER.info("PASSED: {}", testName(context))
         );
+    }
+
+    private static void attachFailureScreenshot(UiSession session, ExtensionContext context) {
+        try {
+            byte[] screenshot = session.page().screenshot();
+            Allure.addAttachment("Failure screenshot", "image/png", new ByteArrayInputStream(screenshot), ".png");
+        } catch (RuntimeException exception) {
+            TEST_LOGGER.warn("Could not capture failure screenshot for {}", testName(context), exception);
+        }
     }
 
     private static String testName(ExtensionContext context) {
