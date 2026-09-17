@@ -2,6 +2,9 @@ package io.github.vladimirshutkov.qaa.api;
 
 import io.github.vladimirshutkov.qaa.config.ApiConfiguration;
 import io.github.vladimirshutkov.qaa.models.Booking;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import io.restassured.response.Response;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.AfterEach;
@@ -18,6 +21,8 @@ import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInC
 import java.util.ArrayList;
 import java.util.List;
 
+@Epic("API Automation")
+@Feature("Booking API")
 class BookingClientTest {
     private static final Logger TEST_LOGGER = LoggerFactory.getLogger("TEST");
     private static final Logger ASSERT_LOGGER = LoggerFactory.getLogger("ASSERT");
@@ -78,6 +83,7 @@ class BookingClientTest {
     }
 
     @Test
+    @Story("Schema Validation")
     @DisplayName("Create booking matches response schema")
     void shouldMatchSchemaWhenCreatingBooking() {
         TEST_LOGGER.info("Starting: BookingClientTest.shouldMatchSchemaWhenCreatingBooking");
@@ -96,6 +102,7 @@ class BookingClientTest {
     }
 
     @Test
+    @Story("Schema Validation")
     @DisplayName("Get booking matches response schema")
     void shouldMatchSchemaWhenGettingBookingById() {
         TEST_LOGGER.info("Starting: BookingClientTest.shouldMatchSchemaWhenGettingBookingById");
@@ -120,6 +127,7 @@ class BookingClientTest {
     }
 
     @Test
+    @Story("Schema Validation")
     @DisplayName("Get booking IDs match response schema")
     void shouldMatchSchemaWhenGettingBookingIds() {
         TEST_LOGGER.info("Starting: BookingClientTest.shouldMatchSchemaWhenGettingBookingIds");
