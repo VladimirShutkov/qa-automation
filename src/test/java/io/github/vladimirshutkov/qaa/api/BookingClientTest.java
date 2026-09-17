@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,30 @@ class BookingClientTest {
         assertEquals(booking.getBookingdates().getCheckout(), response.jsonPath().getString("booking.bookingdates.checkout"), "Created booking check-out date should match the request.");
         assertEquals(booking.getAdditionalneeds(), response.jsonPath().getString("booking.additionalneeds"), "Created booking additional needs should match the request.");
         TEST_LOGGER.info("PASSED: BookingClientTest.shouldCreateBooking");
+    }
+
+    @Test
+    @DisplayName("Get booking matches response schema")
+    void shouldMatchSchemaWhenGettingBookingById() {
+        TEST_LOGGER.info("Starting: BookingClientTest.shouldMatchSchemaWhenGettingBookingById");
+        Booking booking = BookingTestData.createBooking();
+        BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
+
+        Response createResponse = bookingClient.createBooking(booking);
+        ASSERT_LOGGER.info("Verifying booking creation for schema validation returns HTTP 200");
+        assertEquals(200, createResponse.statusCode(), "Booking creation for schema validation should return HTTP 200.");
+        int bookingId = createResponse.jsonPath().getInt("bookingid");
+        ASSERT_LOGGER.info("Verifying booking ID for schema validation is present");
+        assertTrue(bookingId > 0, "Booking for schema validation should have a booking ID.");
+        bookingIdsForCleanup.add(bookingId);
+
+        Response getResponse = bookingClient.getBooking(bookingId);
+
+        ASSERT_LOGGER.info("Verifying GET /booking/{id} returns HTTP 200");
+        assertEquals(200, getResponse.statusCode(), "GET /booking/{id} should return HTTP 200.");
+        ASSERT_LOGGER.info("Verifying GET /booking/{id} response matches the booking schema");
+        getResponse.then().body(matchesJsonSchemaInClasspath("schemas/get-booking-by-id-response-schema.json"));
+        TEST_LOGGER.info("PASSED: BookingClientTest.shouldMatchSchemaWhenGettingBookingById");
     }
 
     @Test
