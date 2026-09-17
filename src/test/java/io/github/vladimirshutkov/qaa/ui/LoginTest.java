@@ -1,6 +1,8 @@
 package io.github.vladimirshutkov.qaa.ui;
 
 import com.microsoft.playwright.Page;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.github.vladimirshutkov.qaa.support.PlaywrightExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(PlaywrightExtension.class)
+@Epic("UI Automation")
+@Feature("Authentication")
 class LoginTest {
     private static final Logger ASSERT_LOGGER = LoggerFactory.getLogger("ASSERT");
     private static final String STANDARD_USER = "standard_user";
