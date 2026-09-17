@@ -120,6 +120,21 @@ class BookingClientTest {
     }
 
     @Test
+    @DisplayName("Get booking IDs match response schema")
+    void shouldMatchSchemaWhenGettingBookingIds() {
+        TEST_LOGGER.info("Starting: BookingClientTest.shouldMatchSchemaWhenGettingBookingIds");
+        BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
+
+        Response response = bookingClient.getBookingIds();
+
+        ASSERT_LOGGER.info("Verifying GET /booking returns HTTP 200");
+        assertEquals(200, response.statusCode(), "GET /booking should return HTTP 200.");
+        ASSERT_LOGGER.info("Verifying GET /booking response matches the booking IDs schema");
+        response.then().body(matchesJsonSchemaInClasspath("schemas/get-booking-ids-response-schema.json"));
+        TEST_LOGGER.info("PASSED: BookingClientTest.shouldMatchSchemaWhenGettingBookingIds");
+    }
+
+    @Test
     @DisplayName("Get non-existing booking returns 404")
     void shouldReturnNotFoundForNonExistentBooking() {
         TEST_LOGGER.info("Starting: BookingClientTest.shouldReturnNotFoundForNonExistentBooking");
