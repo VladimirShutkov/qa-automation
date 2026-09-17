@@ -23,6 +23,7 @@ import java.util.List;
 
 @Epic("API Automation")
 @Feature("Booking API")
+@DisplayName("Booking API Tests")
 class BookingClientTest {
     private static final Logger TEST_LOGGER = LoggerFactory.getLogger("TEST");
     private static final Logger ASSERT_LOGGER = LoggerFactory.getLogger("ASSERT");

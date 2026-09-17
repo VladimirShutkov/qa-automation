@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(PlaywrightExtension.class)
+@DisplayName("Shopping Cart UI Tests")
 class CartTest {
     private static final Logger ASSERT_LOGGER = LoggerFactory.getLogger("ASSERT");
     private static final String STANDARD_USER = "standard_user";
