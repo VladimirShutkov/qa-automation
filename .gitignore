@@ -13,3 +13,6 @@ allure-report/
 .settings/
 .DS_Store
 Thumbs.db
+
+# Local Allure commandline
+.allure/
