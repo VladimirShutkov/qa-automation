@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(PlaywrightExtension.class)
 @Epic("UI Automation")
 @Feature("Authentication")
+@DisplayName("Authentication UI Tests")
 class LoginTest {
     private static final Logger ASSERT_LOGGER = LoggerFactory.getLogger("ASSERT");
     private static final String STANDARD_USER = "standard_user";

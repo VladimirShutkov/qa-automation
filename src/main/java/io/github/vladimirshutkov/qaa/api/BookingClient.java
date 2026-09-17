@@ -97,7 +97,8 @@ public final class BookingClient {
     private RequestSpecification request() {
         return given()
                 .baseUri(configuration.baseUrl())
-                .contentType("application/json");
+                .contentType("application/json")
+                .filter(new AllureRestAssuredFilter());
     }
 
 }
