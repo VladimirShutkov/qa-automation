@@ -78,6 +78,24 @@ class BookingClientTest {
     }
 
     @Test
+    @DisplayName("Create booking matches response schema")
+    void shouldMatchSchemaWhenCreatingBooking() {
+        TEST_LOGGER.info("Starting: BookingClientTest.shouldMatchSchemaWhenCreatingBooking");
+        Booking booking = BookingTestData.createBooking();
+        BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
+
+        Response response = bookingClient.createBooking(booking);
+
+        ASSERT_LOGGER.info("Verifying POST /booking returns HTTP 200");
+        assertEquals(200, response.statusCode(), "POST /booking should return HTTP 200.");
+        int bookingId = response.jsonPath().getInt("bookingid");
+        bookingIdsForCleanup.add(bookingId);
+        ASSERT_LOGGER.info("Verifying POST /booking response matches the create booking schema");
+        response.then().body(matchesJsonSchemaInClasspath("schemas/create-booking-response-schema.json"));
+        TEST_LOGGER.info("PASSED: BookingClientTest.shouldMatchSchemaWhenCreatingBooking");
+    }
+
+    @Test
     @DisplayName("Get booking matches response schema")
     void shouldMatchSchemaWhenGettingBookingById() {
         TEST_LOGGER.info("Starting: BookingClientTest.shouldMatchSchemaWhenGettingBookingById");
