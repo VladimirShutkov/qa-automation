@@ -104,6 +104,8 @@ This uses the Maven plugin configured in the project; a globally installed Allur
 
 CI uploads `allure-results` as an artifact, including when the test job fails. A separate GitHub Actions workflow generates the HTML report from the artifact of the exact triggering CI run and deploys it to GitHub Pages. The repository does not hard-code a Pages URL; GitHub exposes the deployed URL through the deployment environment.
 
+Latest public report: [Open Allure Report](https://vladimirshutkov.github.io/qa-automation/)
+
 ## CI/CD
 
 The `CI` workflow runs on pull requests targeting `main`, pushes to `main`, and manual dispatch. It uses Temurin JDK 21, installs Playwright Chromium, runs the Maven test suite through the wrapper, and uploads the Allure results artifact.
