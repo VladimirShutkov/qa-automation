@@ -10,9 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @ExtendWith(PlaywrightExtension.class)
 @Epic("UI Automation")
 @Feature("Authentication")
@@ -24,6 +21,8 @@ class LoginTest {
     private static final String PRODUCTS_TITLE = "Products";
     private static final String INVALID_USERNAME = "invalid_user";
     private static final String INVALID_PASSWORD = "invalid_password";
+    private static final String INVALID_CREDENTIALS_MESSAGE =
+            "Epic sadface: Username and password do not match any user in this service";
     private static final String LOCKED_OUT_USER = "locked_out_user";
     private static final String LOCKED_OUT_USER_MESSAGE = "Epic sadface: Sorry, this user has been locked out.";
 
@@ -36,11 +35,10 @@ class LoginTest {
         loginPage.login(STANDARD_USER, PASSWORD);
 
         ProductsPage productsPage = new ProductsPage(page);
-        productsPage.waitUntilOpened();
         ASSERT_LOGGER.info("Verifying Products page is visible");
-        assertTrue(productsPage.isOpened(), "Products page should be opened after a successful login.");
+        productsPage.assertOpened();
         ASSERT_LOGGER.info("Verifying Products page title is '{}'", PRODUCTS_TITLE);
-        assertEquals(PRODUCTS_TITLE, productsPage.title(), "Products page should have the expected title.");
+        productsPage.assertTitle(PRODUCTS_TITLE);
     }
 
     @Test
@@ -51,15 +49,14 @@ class LoginTest {
         loginPage.login(STANDARD_USER, PASSWORD);
 
         ProductsPage productsPage = new ProductsPage(page);
-        productsPage.waitUntilOpened();
         ASSERT_LOGGER.info("Verifying Products page is visible");
-        assertTrue(productsPage.isOpened(), "Products page should be opened after a successful login.");
+        productsPage.assertOpened();
 
         productsPage.openApplicationMenu();
         productsPage.logout();
 
         ASSERT_LOGGER.info("Verifying Login page is visible after logout");
-        assertTrue(loginPage.isOpened(), "Login page should be opened after logout.");
+        loginPage.assertOpened();
     }
 
     @Test
@@ -70,8 +67,8 @@ class LoginTest {
 
         loginPage.login(INVALID_USERNAME, INVALID_PASSWORD);
 
-        ASSERT_LOGGER.info("Verifying login error message is visible");
-        assertTrue(loginPage.isLoginErrorVisible(), "Login error message should be visible for invalid credentials.");
+        ASSERT_LOGGER.info("Verifying invalid credentials error message");
+        loginPage.assertLoginErrorMessage(INVALID_CREDENTIALS_MESSAGE);
     }
 
     @Test
@@ -83,7 +80,6 @@ class LoginTest {
         loginPage.login(LOCKED_OUT_USER, PASSWORD);
 
         ASSERT_LOGGER.info("Verifying locked out user error message");
-        assertEquals(LOCKED_OUT_USER_MESSAGE, loginPage.loginErrorMessage(),
-                "Locked out user should see the expected login error message.");
+        loginPage.assertLoginErrorMessage(LOCKED_OUT_USER_MESSAGE);
     }
 }

@@ -5,6 +5,8 @@ import com.microsoft.playwright.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
 /** Page object for the SauceDemo products page. */
 public final class ProductsPage {
     private static final Logger LOGGER = LoggerFactory.getLogger("UI");
@@ -12,29 +14,27 @@ public final class ProductsPage {
     private final Locator menuButton;
     private final Locator logoutLink;
     private final Locator sauceLabsBackpackAddToCartButton;
+    private final Locator shoppingCartLink;
     private final Locator cartBadge;
+    private final Locator cartItemName;
 
     public ProductsPage(Page page) {
         pageTitle = page.locator("[data-test='title']");
         menuButton = page.locator("#react-burger-menu-btn");
         logoutLink = page.locator("#logout_sidebar_link");
         sauceLabsBackpackAddToCartButton = page.locator("[data-test='add-to-cart-sauce-labs-backpack']");
+        shoppingCartLink = page.locator("[data-test='shopping-cart-link']");
         cartBadge = page.locator("[data-test='shopping-cart-badge']");
+        cartItemName = page.locator("[data-test='inventory-item-name']");
     }
 
-    public boolean isOpened() {
-        LOGGER.info("Checking Products page visibility");
-        return pageTitle.isVisible();
+    public void assertOpened() {
+        LOGGER.info("Verifying Products page visibility");
+        assertThat(pageTitle).isVisible();
     }
 
-    public void waitUntilOpened() {
-        LOGGER.info("Waiting for Products page");
-        pageTitle.waitFor();
-    }
-
-    public String title() {
-        LOGGER.info("Getting Products page title");
-        return pageTitle.textContent();
+    public void assertTitle(String expectedTitle) {
+        assertThat(pageTitle).hasText(expectedTitle);
     }
 
     public void openApplicationMenu() {
@@ -52,8 +52,16 @@ public final class ProductsPage {
         sauceLabsBackpackAddToCartButton.click();
     }
 
-    public String cartBadgeCount() {
-        LOGGER.info("Getting cart badge count");
-        return cartBadge.textContent();
+    public void assertCartBadgeCount(String expectedCount) {
+        assertThat(cartBadge).hasText(expectedCount);
+    }
+
+    public void openCart() {
+        LOGGER.info("Opening shopping cart");
+        shoppingCartLink.click();
+    }
+
+    public void assertCartContainsItem(String expectedItemName) {
+        assertThat(cartItemName).hasText(expectedItemName);
     }
 }

@@ -30,7 +30,11 @@ public final class UiSession implements AutoCloseable {
             );
             return new UiSession(playwright, browser, context, context.newPage());
         } catch (RuntimeException exception) {
-            playwright.close();
+            try {
+                playwright.close();
+            } catch (RuntimeException cleanupException) {
+                exception.addSuppressed(cleanupException);
+            }
             throw exception;
         }
     }

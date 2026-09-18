@@ -5,6 +5,8 @@ import com.microsoft.playwright.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
 /** Page object for the SauceDemo login page. */
 public final class LoginPage {
     private static final Logger LOGGER = LoggerFactory.getLogger("UI");
@@ -30,16 +32,13 @@ public final class LoginPage {
         loginButton.click();
     }
 
-    public boolean isOpened() {
-        LOGGER.info("Checking Login page visibility");
-        return usernameInput.isVisible() && loginButton.isVisible();
+    public void assertOpened() {
+        LOGGER.info("Verifying Login page visibility");
+        assertThat(usernameInput).isVisible();
+        assertThat(loginButton).isVisible();
     }
 
-    public boolean isLoginErrorVisible() {
-        return loginError.isVisible();
-    }
-
-    public String loginErrorMessage() {
-        return loginError.textContent();
+    public void assertLoginErrorMessage(String expectedMessage) {
+        assertThat(loginError).hasText(expectedMessage);
     }
 }
