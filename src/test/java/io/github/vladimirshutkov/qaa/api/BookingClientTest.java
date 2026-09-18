@@ -13,13 +13,15 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Epic("API Automation")
 @Feature("Booking API")
@@ -39,7 +41,10 @@ class BookingClientTest {
         bookingClient.authenticate();
         for (int bookingId : bookingIdsForCleanup) {
             Response response = bookingClient.deleteBooking(bookingId);
-            assertEquals(201, response.statusCode(), "Cleanup should delete booking " + bookingId + ".");
+            assertTrue(
+                    response.statusCode() == 201 || response.statusCode() == 404,
+                    "Cleanup should delete booking " + bookingId + " or find it already absent, but got HTTP " + response.statusCode() + "."
+            );
         }
     }
 
@@ -99,7 +104,7 @@ class BookingClientTest {
         bookingIdsForCleanup.add(bookingId);
         ASSERT_LOGGER.info("Verifying POST /booking response matches the create booking schema");
         response.then().body(matchesJsonSchemaInClasspath("schemas/create-booking-response-schema.json"));
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldMatchSchemaWhenCreatingBooking");
+        assertValidBookingDates(response, "booking.");
     }
 
     @Test
@@ -124,7 +129,8 @@ class BookingClientTest {
         assertEquals(200, getResponse.statusCode(), "GET /booking/{id} should return HTTP 200.");
         ASSERT_LOGGER.info("Verifying GET /booking/{id} response matches the booking schema");
         getResponse.then().body(matchesJsonSchemaInClasspath("schemas/get-booking-by-id-response-schema.json"));
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldMatchSchemaWhenGettingBookingById");
+        assertValidBookingDates(getResponse, "");
+        assertBookingMatches(booking, getResponse);
     }
 
     @Test
@@ -161,6 +167,7 @@ class BookingClientTest {
     void shouldRejectUpdateWithoutAuthentication() {
         TEST_LOGGER.info("Starting: BookingClientTest.shouldRejectUpdateWithoutAuthentication");
         Booking booking = BookingTestData.bookingForUpdate();
+        Booking unauthorizedUpdate = BookingTestData.unauthorizedUpdateBooking();
         BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
 
         Response createResponse = bookingClient.createBooking(booking);
@@ -171,11 +178,13 @@ class BookingClientTest {
         assertTrue(bookingId > 0, "Booking to update should have a booking ID.");
         bookingIdsForCleanup.add(bookingId);
 
-        Response updateResponse = bookingClient.updateBookingWithoutAuthentication(bookingId, booking);
+        Response updateResponse = bookingClient.updateBookingWithoutAuthentication(bookingId, unauthorizedUpdate);
 
         ASSERT_LOGGER.info("Verifying PUT /booking/{id} without authentication returns HTTP 403");
         assertEquals(403, updateResponse.statusCode(), "PUT /booking/{id} without authentication should return HTTP 403.");
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldRejectUpdateWithoutAuthentication");
+        Response getResponse = bookingClient.getBooking(bookingId);
+        assertEquals(200, getResponse.statusCode(), "GET /booking/{id} after rejected update should return HTTP 200.");
+        assertBookingMatches(booking, getResponse);
     }
 
     @Test
@@ -207,7 +216,9 @@ class BookingClientTest {
         assertEquals(updatedBooking.getBookingdates().getCheckin(), updateResponse.jsonPath().getString("bookingdates.checkin"), "Updated booking check-in date should match the request.");
         assertEquals(updatedBooking.getBookingdates().getCheckout(), updateResponse.jsonPath().getString("bookingdates.checkout"), "Updated booking check-out date should match the request.");
         assertEquals(updatedBooking.getAdditionalneeds(), updateResponse.jsonPath().getString("additionalneeds"), "Updated booking additional needs should match the request.");
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldUpdateBooking");
+        Response getResponse = bookingClient.getBooking(bookingId);
+        assertEquals(200, getResponse.statusCode(), "GET /booking/{id} after update should return HTTP 200.");
+        assertBookingMatches(updatedBooking, getResponse);
     }
 
     @Test
@@ -221,6 +232,7 @@ class BookingClientTest {
         ASSERT_LOGGER.info("Verifying booking creation for deletion returns HTTP 200");
         assertEquals(200, createResponse.statusCode(), "Booking creation for deletion should return HTTP 200.");
         int bookingId = createResponse.jsonPath().getInt("bookingid");
+        bookingIdsForCleanup.add(bookingId);
         ASSERT_LOGGER.info("Verifying booking ID for deletion is present");
         assertTrue(bookingId > 0, "Booking to delete should have a booking ID.");
 
@@ -233,6 +245,22 @@ class BookingClientTest {
         Response getResponse = bookingClient.getBooking(bookingId);
         ASSERT_LOGGER.info("Verifying deleted booking is no longer available");
         assertEquals(404, getResponse.statusCode(), "Deleted booking should return HTTP 404.");
+        bookingIdsForCleanup.remove(Integer.valueOf(bookingId));
         TEST_LOGGER.info("PASSED: BookingClientTest.shouldDeleteBooking");
+    }
+
+    private static void assertBookingMatches(Booking expectedBooking, Response actualResponse) {
+        assertEquals(expectedBooking.getFirstname(), actualResponse.jsonPath().getString("firstname"), "Booking firstname should match the expected value.");
+        assertEquals(expectedBooking.getLastname(), actualResponse.jsonPath().getString("lastname"), "Booking lastname should match the expected value.");
+        assertEquals(expectedBooking.getTotalprice(), actualResponse.jsonPath().getInt("totalprice"), "Booking total price should match the expected value.");
+        assertEquals(expectedBooking.isDepositpaid(), actualResponse.jsonPath().getBoolean("depositpaid"), "Booking deposit-paid flag should match the expected value.");
+        assertEquals(expectedBooking.getBookingdates().getCheckin(), actualResponse.jsonPath().getString("bookingdates.checkin"), "Booking check-in date should match the expected value.");
+        assertEquals(expectedBooking.getBookingdates().getCheckout(), actualResponse.jsonPath().getString("bookingdates.checkout"), "Booking check-out date should match the expected value.");
+        assertEquals(expectedBooking.getAdditionalneeds(), actualResponse.jsonPath().getString("additionalneeds"), "Booking additional needs should match the expected value.");
+    }
+
+    private static void assertValidBookingDates(Response response, String pathPrefix) {
+        assertDoesNotThrow(() -> LocalDate.parse(response.jsonPath().getString(pathPrefix + "bookingdates.checkin")), "Booking check-in must be a valid ISO date.");
+        assertDoesNotThrow(() -> LocalDate.parse(response.jsonPath().getString(pathPrefix + "bookingdates.checkout")), "Booking check-out must be a valid ISO date.");
     }
 }

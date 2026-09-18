@@ -2,6 +2,8 @@ package io.github.vladimirshutkov.qaa.api;
 
 import io.github.vladimirshutkov.qaa.config.ApiConfiguration;
 import io.github.vladimirshutkov.qaa.models.Booking;
+import io.restassured.config.HttpClientConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.slf4j.Logger;
@@ -14,6 +16,8 @@ import static io.restassured.RestAssured.given;
 /** REST client for Restful Booker booking endpoints. */
 public final class BookingClient {
     private static final Logger API_LOGGER = LoggerFactory.getLogger("API");
+    private static final int CONNECT_TIMEOUT_MILLIS = 10_000;
+    private static final int SOCKET_TIMEOUT_MILLIS = 30_000;
     private final ApiConfiguration configuration;
     private String authenticationToken;
 
@@ -98,6 +102,9 @@ public final class BookingClient {
         return given()
                 .baseUri(configuration.baseUrl())
                 .contentType("application/json")
+                .config(RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig()
+                        .setParam("http.connection.timeout", CONNECT_TIMEOUT_MILLIS)
+                        .setParam("http.socket.timeout", SOCKET_TIMEOUT_MILLIS)))
                 .filter(new AllureRestAssuredFilter());
     }
 

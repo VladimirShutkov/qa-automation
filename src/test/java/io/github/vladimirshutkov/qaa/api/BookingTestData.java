@@ -40,4 +40,15 @@ public final class BookingTestData {
                 "Late checkout"
         );
     }
+
+    public static Booking unauthorizedUpdateBooking() {
+        return new Booking(
+                "Unauthorized",
+                "Update",
+                999,
+                true,
+                new BookingDates("2026-12-01", "2026-12-10"),
+                "Should not persist"
+        );
+    }
 }
