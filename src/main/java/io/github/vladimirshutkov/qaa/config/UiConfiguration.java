@@ -14,7 +14,7 @@ public record UiConfiguration(String baseUrl, BrowserName browserName, boolean h
 
     private static final String DEFAULT_BASE_URL = "https://www.saucedemo.com";
     private static final BrowserName DEFAULT_BROWSER = BrowserName.CHROMIUM;
-    private static final boolean DEFAULT_HEADLESS = false;
+    private static final boolean DEFAULT_HEADLESS = true;
 
     public UiConfiguration {
         validateBaseUrl(baseUrl);

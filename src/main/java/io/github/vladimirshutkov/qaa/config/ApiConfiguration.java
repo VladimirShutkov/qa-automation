@@ -37,9 +37,23 @@ public record ApiConfiguration(String baseUrl, String username, String password)
     }
 
     private static void validateBaseUrl(String value) {
-        URI uri = URI.create(value);
-        if (!uri.isAbsolute() || !("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))) {
+        URI uri;
+        try {
+            uri = URI.create(value);
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("API base URL must be an absolute HTTP(S) URL, but was: " + value, exception);
+        }
+
+        if (!uri.isAbsolute()
+                || !("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
+                || uri.getHost() == null
+                || uri.getHost().isBlank()) {
             throw new IllegalArgumentException("API base URL must be an absolute HTTP(S) URL, but was: " + value);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ApiConfiguration[baseUrl=" + baseUrl + ", username=" + username + ", password=***]";
     }
 }

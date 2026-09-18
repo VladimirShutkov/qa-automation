@@ -52,9 +52,8 @@ public final class PlaywrightExtension implements BeforeEachCallback, AfterEachC
             throw exception;
         }
 
-        context.getExecutionException().ifPresentOrElse(
-                exception -> TEST_LOGGER.error("FAILED: {}", testName(context), exception),
-                () -> TEST_LOGGER.info("PASSED: {}", testName(context))
+        context.getExecutionException().ifPresent(
+                exception -> TEST_LOGGER.error("FAILED: {}", testName(context), exception)
         );
     }
 

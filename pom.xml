@@ -22,7 +22,6 @@
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
         <allure.maven.plugin.version>2.15.2</allure.maven.plugin.version>
-        <qaa.ui.headless>true</qaa.ui.headless>
     </properties>
 
     <dependencies>
@@ -92,11 +91,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.plugin.version}</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <qaa.ui.headless>${qaa.ui.headless}</qaa.ui.headless>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>io.qameta.allure</groupId>
