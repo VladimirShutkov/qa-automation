@@ -1,4 +1,4 @@
-# QA Automation Portfolio
+# QA Automation Project
 
 A focused portfolio project demonstrating maintainable UI and REST API test automation, diagnostic reporting, and CI/CD. It uses a small set of representative scenarios to show test design, isolation, configuration, and observability rather than maximizing test count.
 
