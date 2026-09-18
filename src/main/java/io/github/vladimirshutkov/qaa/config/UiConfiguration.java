@@ -46,8 +46,17 @@ public record UiConfiguration(String baseUrl, BrowserName browserName, boolean h
     }
 
     private static void validateBaseUrl(String value) {
-        URI uri = URI.create(value);
-        if (!uri.isAbsolute() || !("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))) {
+        URI uri;
+        try {
+            uri = URI.create(value);
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("UI base URL must be an absolute HTTP(S) URL, but was: " + value, exception);
+        }
+
+        if (!uri.isAbsolute()
+                || !("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
+                || uri.getHost() == null
+                || uri.getHost().isBlank()) {
             throw new IllegalArgumentException("UI base URL must be an absolute HTTP(S) URL, but was: " + value);
         }
     }

@@ -70,12 +70,15 @@ class BookingClientTest {
         BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
 
         Response response = bookingClient.createBooking(booking);
+        int bookingId = response.jsonPath().getInt("bookingid");
+        if (bookingId > 0) {
+            bookingIdsForCleanup.add(bookingId);
+        }
 
         ASSERT_LOGGER.info("Verifying POST /booking returns HTTP 200");
         assertEquals(200, response.statusCode(), "POST /booking should return HTTP 200.");
         ASSERT_LOGGER.info("Verifying created booking ID is present");
-        assertTrue(response.jsonPath().getInt("bookingid") > 0, "Created booking should have a booking ID.");
-        bookingIdsForCleanup.add(response.jsonPath().getInt("bookingid"));
+        assertTrue(bookingId > 0, "Created booking should have a booking ID.");
         ASSERT_LOGGER.info("Verifying created booking fields");
         assertEquals(booking.getFirstname(), response.jsonPath().getString("booking.firstname"), "Created booking firstname should match the request.");
         assertEquals(booking.getLastname(), response.jsonPath().getString("booking.lastname"), "Created booking lastname should match the request.");
@@ -95,11 +98,13 @@ class BookingClientTest {
         BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
 
         Response response = bookingClient.createBooking(booking);
+        int bookingId = response.jsonPath().getInt("bookingid");
+        if (bookingId > 0) {
+            bookingIdsForCleanup.add(bookingId);
+        }
 
         ASSERT_LOGGER.info("Verifying POST /booking returns HTTP 200");
         assertEquals(200, response.statusCode(), "POST /booking should return HTTP 200.");
-        int bookingId = response.jsonPath().getInt("bookingid");
-        bookingIdsForCleanup.add(bookingId);
         ASSERT_LOGGER.info("Verifying POST /booking response matches the create booking schema");
         response.then().body(matchesJsonSchemaInClasspath("schemas/create-booking-response-schema.json"));
         assertValidBookingDates(response, "booking.");
@@ -114,12 +119,14 @@ class BookingClientTest {
         BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
 
         Response createResponse = bookingClient.createBooking(booking);
+        int bookingId = createResponse.jsonPath().getInt("bookingid");
+        if (bookingId > 0) {
+            bookingIdsForCleanup.add(bookingId);
+        }
         ASSERT_LOGGER.info("Verifying booking creation for schema validation returns HTTP 200");
         assertEquals(200, createResponse.statusCode(), "Booking creation for schema validation should return HTTP 200.");
-        int bookingId = createResponse.jsonPath().getInt("bookingid");
         ASSERT_LOGGER.info("Verifying booking ID for schema validation is present");
         assertTrue(bookingId > 0, "Booking for schema validation should have a booking ID.");
-        bookingIdsForCleanup.add(bookingId);
 
         Response getResponse = bookingClient.getBooking(bookingId);
 
@@ -167,12 +174,14 @@ class BookingClientTest {
         BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
 
         Response createResponse = bookingClient.createBooking(booking);
+        int bookingId = createResponse.jsonPath().getInt("bookingid");
+        if (bookingId > 0) {
+            bookingIdsForCleanup.add(bookingId);
+        }
         ASSERT_LOGGER.info("Verifying booking creation for unauthenticated update returns HTTP 200");
         assertEquals(200, createResponse.statusCode(), "Booking creation for unauthenticated update should return HTTP 200.");
-        int bookingId = createResponse.jsonPath().getInt("bookingid");
         ASSERT_LOGGER.info("Verifying booking ID for unauthenticated update is present");
         assertTrue(bookingId > 0, "Booking to update should have a booking ID.");
-        bookingIdsForCleanup.add(bookingId);
 
         Response updateResponse = bookingClient.updateBookingWithoutAuthentication(bookingId, unauthorizedUpdate);
 
@@ -192,12 +201,14 @@ class BookingClientTest {
         BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
 
         Response createResponse = bookingClient.createBooking(initialBooking);
+        int bookingId = createResponse.jsonPath().getInt("bookingid");
+        if (bookingId > 0) {
+            bookingIdsForCleanup.add(bookingId);
+        }
         ASSERT_LOGGER.info("Verifying booking creation for update returns HTTP 200");
         assertEquals(200, createResponse.statusCode(), "Booking creation for update should return HTTP 200.");
-        int bookingId = createResponse.jsonPath().getInt("bookingid");
         ASSERT_LOGGER.info("Verifying booking ID for update is present");
         assertTrue(bookingId > 0, "Booking to update should have a booking ID.");
-        bookingIdsForCleanup.add(bookingId);
 
         bookingClient.authenticate();
         Response updateResponse = bookingClient.updateBooking(bookingId, updatedBooking);
@@ -225,10 +236,12 @@ class BookingClientTest {
         BookingClient bookingClient = new BookingClient(ApiConfiguration.load());
 
         Response createResponse = bookingClient.createBooking(booking);
+        int bookingId = createResponse.jsonPath().getInt("bookingid");
+        if (bookingId > 0) {
+            bookingIdsForCleanup.add(bookingId);
+        }
         ASSERT_LOGGER.info("Verifying booking creation for deletion returns HTTP 200");
         assertEquals(200, createResponse.statusCode(), "Booking creation for deletion should return HTTP 200.");
-        int bookingId = createResponse.jsonPath().getInt("bookingid");
-        bookingIdsForCleanup.add(bookingId);
         ASSERT_LOGGER.info("Verifying booking ID for deletion is present");
         assertTrue(bookingId > 0, "Booking to delete should have a booking ID.");
 

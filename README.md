@@ -77,13 +77,13 @@ Windows PowerShell:
 macOS/Linux:
 
 ```bash
-./mvnw test
+bash ./mvnw test
 ```
 
 To run UI tests in a visible browser on Windows:
 
 ```powershell
-.\mvnw.cmd test -Dqaa.ui.headless=false
+.\mvnw.cmd test '-Dqaa.ui.headless=false'
 ```
 
 An individual test class can be selected through Surefire, for example:
