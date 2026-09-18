@@ -60,7 +60,6 @@ class BookingClientTest {
         assertEquals(200, response.statusCode(), "GET /booking should return HTTP 200.");
         ASSERT_LOGGER.info("Verifying GET /booking response is not empty");
         assertFalse(response.jsonPath().getList("$").isEmpty(), "GET /booking response should not be empty.");
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldReturnBookingIds");
     }
 
     @Test
@@ -85,7 +84,6 @@ class BookingClientTest {
         assertEquals(booking.getBookingdates().getCheckin(), response.jsonPath().getString("booking.bookingdates.checkin"), "Created booking check-in date should match the request.");
         assertEquals(booking.getBookingdates().getCheckout(), response.jsonPath().getString("booking.bookingdates.checkout"), "Created booking check-out date should match the request.");
         assertEquals(booking.getAdditionalneeds(), response.jsonPath().getString("booking.additionalneeds"), "Created booking additional needs should match the request.");
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldCreateBooking");
     }
 
     @Test
@@ -146,7 +144,6 @@ class BookingClientTest {
         assertEquals(200, response.statusCode(), "GET /booking should return HTTP 200.");
         ASSERT_LOGGER.info("Verifying GET /booking response matches the booking IDs schema");
         response.then().body(matchesJsonSchemaInClasspath("schemas/get-booking-ids-response-schema.json"));
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldMatchSchemaWhenGettingBookingIds");
     }
 
     @Test
@@ -159,7 +156,6 @@ class BookingClientTest {
 
         ASSERT_LOGGER.info("Verifying GET /booking/{id} for a non-existent booking returns HTTP 404");
         assertEquals(404, response.statusCode(), "GET /booking/{id} for a non-existent booking should return HTTP 404.");
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldReturnNotFoundForNonExistentBooking");
     }
 
     @Test
@@ -246,7 +242,6 @@ class BookingClientTest {
         ASSERT_LOGGER.info("Verifying deleted booking is no longer available");
         assertEquals(404, getResponse.statusCode(), "Deleted booking should return HTTP 404.");
         bookingIdsForCleanup.remove(Integer.valueOf(bookingId));
-        TEST_LOGGER.info("PASSED: BookingClientTest.shouldDeleteBooking");
     }
 
     private static void assertBookingMatches(Booking expectedBooking, Response actualResponse) {
